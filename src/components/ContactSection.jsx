@@ -4,6 +4,7 @@ import {
   Phone,
   Send,
 } from "lucide-react";
+import emailjs from "@emailjs/browser";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -16,14 +17,45 @@ export const ContactSection = () => {
     e.preventDefault();
 
     setIsSubmitting(true);
+    const formData = new FormData(e.target);
+    formData.append("time", new Date().toLocaleString());
 
-    setTimeout(() => {
-      toast({
-        title: "Message sent!",
-        description: "Thank you for your message. I'll get back to you soon.",
+    emailjs
+      .sendForm(
+      "service_cv6bnql",
+      "template_4qdjth5",
+      e.target,
+      "AN_YoIe4FXuktVBLq"
+      )
+      .then(
+      (result) => {
+          console.log(result.text);
+          toast({
+            title: "Message sent!",
+            description: "Thank you for your message. I'll get back to you soon.",
+          });
+        },
+        (error) => {
+          console.log(error.text);
+          toast({
+            title: "Error sending message",
+            description: "Please try again later.",
+            variant: "destructive",
+          });
+        }
+      )
+      .finally(() => {
+        setIsSubmitting(false);
+        e.target.reset();
       });
-      setIsSubmitting(false);
-    }, 1500);
+
+    // setTimeout(() => {
+    //   toast({
+    //     title: "Message sent!",
+    //     description: "Thank you for your message. I'll get back to you soon.",
+    //   });
+    //   setIsSubmitting(false);
+    // }, 1500);
   };
   return (
     <section id="contact" className="py-24 px-4 relative bg-secondary/30">
@@ -107,11 +139,15 @@ export const ContactSection = () => {
 
           <div
             className="bg-card p-8 rounded-lg shadow-xs"
-            onSubmit={handleSubmit}
           >
             <h3 className="text-2xl font-semibold mb-6"> Send a Message</h3>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <input
+                type="hidden"
+                name="time"
+                value={new Date().toLocaleString()}
+              />
               <div>
                 <label
                   htmlFor="name"
